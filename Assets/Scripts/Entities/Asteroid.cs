@@ -2,45 +2,46 @@
 using System;
 using UnityEngine;
 
-[RequireComponent(typeof(ObjectMovement))]
 public class Asteroid : GameEntity
 {
-    protected ObjectMovement movement;
+    [SerializeField] private float _speed;
+    protected ObjectMovement movement = new ObjectMovement();
+
+    public override Entity Type => Entity.Asteroid;
+
     public override event Action Entity_Deaded;
 
-    private void Awake()
-    {
-        movement = GetComponent<ObjectMovement>();
-    }
     private void Start()
     {
-        type = Entity.Asteroid;
         movement.Acceleration = 1;
     }
 
     private void FixedUpdate()
     {
-        movement.Move(Visualization.GetDirection());
+        transform.position = movement.Move(
+            transform.position.Parse(),
+            transform.TransformDirection(Visualization.GetDirection() * _speed * Time.deltaTime).Parse())
+            .Parse();
     }
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
-        collision.GetComponent<GameEntity>()?.Dead();
+        collision.GetComponent<IGameEntity>()?.Dead();
         Destroy(gameObject);
     }
 
     private void OnTriggerEnter(Collider other)
     {
-        other.GetComponent<GameEntity>()?.Dead();
+        other.GetComponent<IGameEntity>()?.Dead();
         Destroy(gameObject);
     }
 
     private void CreateDebris()
     {
-        GameEntity debris;
+        IGameEntity debris;
         for (int i = 0; i < UnityEngine.Random.Range(2, 5); i++)
         {
-            debris = GameSystem.GetInstance().Factory.GetEntity(Entity.Debris, transform.position, Quaternion.Euler(Visualization.GetEuler()));
+            debris = GameSystem.GetInstance().Factory.GetEntity(Entity.Debris, transform.position.Parse(), Quaternion.Euler(Visualization.GetRandomEuler()).Parse());
             debris.Entity_Deaded += Entity_Deaded;
         }
     }

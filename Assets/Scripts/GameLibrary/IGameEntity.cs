@@ -1,21 +1,21 @@
 ﻿using System;
-using UnityEngine;
+
 
 namespace GameLibrary
 {
-    public abstract class GameEntity : MonoBehaviour
+    public interface IGameEntity
     {
         /// <summary>
         /// Событие смерти сущности
         /// </summary>
-        public abstract event Action Entity_Deaded;
+        event Action Entity_Deaded;
         /// <summary>
         /// Смерть сущности
         /// </summary>
-        public abstract void Dead();
+        void Dead();
         /// <summary>
         /// Определить тип сущности
         /// </summary>
-        public Entity type;
+        Entity Type { get; }
     }
 }

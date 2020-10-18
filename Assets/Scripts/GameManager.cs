@@ -1,24 +1,29 @@
 ﻿using GameLibrary;
 using System.Collections;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
-[RequireComponent(typeof(GameSystem))]
 class GameManager : MonoBehaviour
 {
-    private GameSystem system;
     [SerializeField]private float frequency;
+    private GameSystem system;
     public GameObject defeatPanel;
     public Text score;
 
     private void Awake()
     {
-        system = GetComponent<GameSystem>();
+        system = GameSystem.GetInstance();
+        system.Factory = new Factory();
     }
 
     private void Start()
     {
-        system.SpawnEntity(Entity.Player,Vector3.zero,Quaternion.Euler(Visualization.GetEuler()),Defeat);
+        system.SpawnEntity(
+            Entity.Player,
+            Vector3.zero.Parse(),
+            Quaternion.Euler(Visualization.GetRandomEuler()).Parse(),
+            Defeat);
         StartCoroutine(SpawnEnemy());
     }
 
@@ -39,25 +44,45 @@ class GameManager : MonoBehaviour
         foreach (var entity in entities)
         {
             Destroy(entity.gameObject);
-            GameEntity gameEntity = system.Factory.GetEntity(entity.type, entity.transform.position, Quaternion.Euler(Visualization.GetEuler()));
-            if (gameEntity.type == Entity.Player) gameEntity.Entity_Deaded += Defeat;
+            IGameEntity gameEntity = system.Factory.GetEntity(
+                entity.Type, 
+                entity.transform.position.Parse(), 
+                Quaternion.Euler(Visualization.GetEuler(entity.transform.rotation.eulerAngles)).Parse());
+            if (gameEntity.Type == Entity.Player) gameEntity.Entity_Deaded += Defeat;
             else gameEntity.Entity_Deaded += AddScore;
         }
+        Cartridge[] cartridges = FindObjectsOfType<Cartridge>();
+        foreach(var cartridge in cartridges)
+        {
+            Destroy(cartridge.gameObject);
+        }
     }
-
 
     private IEnumerator SpawnEnemy()
     {
         int count = 0;
         while (true)
         {
-            system.SpawnEntity(Entity.Asteroid,new Vector3(9,5,0),Quaternion.Euler(Visualization.GetEuler()),AddScore);
+            system.SpawnEntity(
+                Entity.Asteroid,
+                new Vector3(9,5,0).Parse(),
+                Quaternion.Euler(Visualization.GetRandomEuler()).Parse(),
+                AddScore);
             if (++count > 10)
             {
                 count = 0;
-                system.SpawnEntity(Entity.Alien, new Vector3(9, 5, 0), Quaternion.Euler(Visualization.GetEuler()), AddScore);
+                system.SpawnEntity(
+                    Entity.Alien, 
+                    new Vector3(8.8f, 4.8f, 0).Parse(), 
+                    Quaternion.Euler(Visualization.GetRandomEuler()).Parse(), 
+                    AddScore);
             }
             yield return new WaitForSeconds(frequency);
         }
+    }
+
+    public void Restart()
+    {
+        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
     }
 }

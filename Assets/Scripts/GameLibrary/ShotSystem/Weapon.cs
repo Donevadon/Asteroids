@@ -1,31 +1,39 @@
 ﻿using System;
-using UnityEngine;
+using System.Numerics;
 
 namespace GameLibrary.ShotSystem
 {
     /// <summary>
     /// Оружие устанавливаемое с помощью GunManager
     /// </summary>
-    public abstract class Weapon : MonoBehaviour
+    public abstract class Weapon
     {
-        [SerializeField]private float chargeSpeed;
-        [SerializeField]private int countCartridge;
-        private Loader loader;
-        private Cartridge cartridge;
-        public Weapons type;
-        [SerializeField]protected float timeToRecharge;
+        private float rechargeTime;
+        private ICartridge cartridge;
+        protected ILoader loader;
+        protected float timeToRecharge;
+        public bool isRecharged => rechargeTime > 0;
         /// <summary>
         /// Скорость заполнения прогресса создания снаряда
         /// </summary>
-        protected float ChargeSpeed { get => chargeSpeed; set => chargeSpeed = value; }
+        protected float ChargeSpeed { get; set; }
         /// <summary>
         /// Прогресс создания нового снаряда от 0 до 100
         /// </summary>
-        protected float charge { get; set; }
+        protected float Charge { get; set; }
+        /// <summary>
+        /// Возвращает оставшееся времени перезарядки
+        /// </summary>
+        public float RechargeTime { get; private set; }
+        /// <summary>
+        /// Записывает и возвращает количество доступных снарядов
+        /// </summary>
+        public int CountCartridge { get; protected set; }
+        public Weapons Type { get; }
         /// <summary>
         /// Получить используемый снаряд
         /// </summary>
-        protected Cartridge Cartridge 
+        protected ICartridge Cartridge 
         { 
             get
             {
@@ -37,46 +45,48 @@ namespace GameLibrary.ShotSystem
         /// Событие обновления данных о количестве снарядов
         /// </summary>
         public virtual event Action<int,Weapons> CountCartridge_Updated;
+        public Weapon(ILoader loader,Weapons type,float rechargeTime)
+        {
+            Type = type;
+            RechargeTime = rechargeTime;
+            this.loader = loader;
+        }
         /// <summary>
-        /// Возвращает оставшееся времени перезарядки
+        /// установить время перезарядки после выстрела
         /// </summary>
-        public float RechargeTime { get; protected set; }
-        /// <summary>
-        /// Записывает и возвращает количество доступных снарядов
-        /// </summary>
-        public int CountCartridge { get => countCartridge; protected set => countCartridge = value; }
-        /// <summary>
-        /// Изображение используемого снаряда
-        /// </summary>
-        public Sprite ImageCartridge => Cartridge.Image;
+        /// <param name="rechargeTime"></param>
+        protected void SetRechargeTime(float rechargeTime)
+        {
+            this.rechargeTime = rechargeTime;
+        }
         /// <summary>
         /// Запустить снаряд
         /// </summary>
         /// <returns></returns>
-        public abstract void Launch(Vector3 direction);
+        public abstract void Launch(Vector3 position, Vector3 direction);
         /// <summary>
         /// Добавить снаряд за определённое количество времени
         /// </summary>
         public virtual void AddCartridge() 
         {
-            if (charge >= 100)
+            if (ChargeSpeed > 0) 
             {
-                CountCartridge_Updated?.Invoke(++CountCartridge, type);
-                charge = 0;
+                if (Charge >= 100)
+                {
+                    CountCartridge++;
+                    CountCartridge_Updated?.Invoke(CountCartridge, Type);
+                    Charge = 0;
+                }
+                else if (Charge >= 0) Charge += ChargeSpeed;
             }
-            else if(charge >= 0) charge += ChargeSpeed;
-            print(charge);
         }
         /// <summary>
         /// Перезарядить оружие
         /// </summary>
-        public void Recharge()
+        /// <param name="time"></param>
+        public void Recharge(float time)
         {
-            if (RechargeTime > 0) RechargeTime -= Time.deltaTime; 
-        }
-        private void Awake()
-        {
-            loader = GetComponent<Loader>() ?? throw new Exception("Отсутствует загрузчик патронов");
+            if (rechargeTime > 0) rechargeTime -= time; 
         }
     }
 }

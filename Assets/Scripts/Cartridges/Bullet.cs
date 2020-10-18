@@ -2,17 +2,12 @@
 using GameLibrary.ShotSystem;
 using UnityEngine;
 
-[RequireComponent(typeof(ObjectMovement))]
 public class Bullet : Cartridge
 {
-    private ObjectMovement movement;
+    [SerializeField] private float _speed;
+    private ObjectMovement movement = new ObjectMovement();
 
     public override Sprite Image { get; }
-
-    private void Awake()
-    {
-        movement = GetComponent<ObjectMovement>();
-    }
 
     private void Start()
     {
@@ -22,18 +17,21 @@ public class Bullet : Cartridge
 
     private void FixedUpdate()
     {
-        movement.Move(Visualization.GetDirection());
+        transform.position = movement.Move(
+            transform.position.Parse(),
+            transform.TransformDirection(Visualization.GetDirection() * _speed * Time.deltaTime).Parse())
+            .Parse();
     }
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
-        collision.GetComponent<GameEntity>().Dead();
+        collision.GetComponent<IGameEntity>().Dead();
         Destroy(gameObject);
     }
 
     private void OnTriggerEnter(Collider other)
     {
-        other.gameObject.GetComponent<GameEntity>()?.Dead();
+        other.gameObject.GetComponent<IGameEntity>()?.Dead();
         Destroy(gameObject);
     }
 }

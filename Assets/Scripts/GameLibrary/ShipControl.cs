@@ -1,70 +1,61 @@
-﻿using UnityEngine;
+﻿using System.Numerics;
 
 namespace GameLibrary
 {
     /// <summary>
     /// Управление кораблём
     /// </summary>
-    public class ShipControl : MonoBehaviour
+    public class ShipControl
     {
-        private ObjectMovement movement;
-        private ObjectRotation rotation;
-        private WeaponManager gunManager;
+        public ObjectMovement Movement { get; } = new ObjectMovement();
+        public ObjectRotation Rotation { get; } = new ObjectRotation();
+        public WeaponManager GunManager { get; } = new WeaponManager();
         /// <summary>
         /// Задаёт ускорение движению корабля
         /// Используется для передвижения
-        /// Необходим компонент ShipMovement
         /// </summary>
-        public float MoveAcceleration { set => movement.Acceleration = value; }
+        public float MoveAcceleration { set => Movement.Acceleration = value; }
         /// <summary>
         /// Задаёт ускорение вращению корабля
         /// Использается для поворотов
-        /// Необходим компонент ShipRotation
         /// </summary>
-        public float RotateAcceleration { set => rotation.Rotation = value; }
-
-        private void Awake()
-        {
-            movement = GetComponent<ObjectMovement>(); //ToDO: обработать отсутствие компонентов
-            rotation = GetComponent<ObjectRotation>();
-            gunManager = GetComponent<WeaponManager>();
-        }
+        public float RotateAcceleration { set => Rotation.Rotation = value; }
         /// <summary>
         /// Направить корабль в сторону цели
         /// </summary>
         /// <param name="target"></param>
         /// <returns></returns>
-        public void RotateForTarget(Vector3 target,Vector3 direction,bool is3D)
-        {
-            rotation.RotateForTarget(target,direction,is3D);
-        }
+        public Vector3 RotateForTarget(Vector3 position,Vector3 target, Vector3 direction, bool is3D) => Rotation.RotateForTarget(position,target, direction, is3D);
         /// <summary>
         /// Выстрелить из указанного оружия в указанную сторону
-        /// Необходим компонент ShipGun и Loader и GunManager
         /// </summary>
         /// <param name="weapon"></param>
         /// <param name="direction"></param>
-        public void Shoot(Weapons weapon,Vector3 direction)
-        {
-            gunManager.Shoot(weapon,direction);
-        }
+        public void Shoot(Weapons weapon,Vector3 position, Vector3 direction) => GunManager.Shoot(weapon,position,direction);
         /// <summary>
         /// Перемещать корабль в указанную сторону
-        /// Необходим компонент ShipMovement
         /// </summary>
         /// <param name="direction"></param>
-        public void Move(Vector3 direction)
-        {
-            movement.Move(direction);
-        }
+        public Vector3 Move(Vector3 position,Vector3 direction) => Movement.Move(position,direction);
         /// <summary>
         /// Повернуть корабль в указанную сторону
-        /// Необходим компонент ShipRotation
         /// </summary>
         /// <param name="rotateVector"></param>
-        public void Rotate(Vector3 rotateVector)
+        public Vector3 GetRotateDirection(Vector3 rotateVector)
         {
-            rotation.Rotate(rotateVector);
+            return Rotation.GetRotateDirection(rotateVector);
+        }
+        /// <summary>
+        /// Перезарядить все оружия. Использовать в цикле
+        /// </summary>
+        /// <param name="Time"></param>
+        public void GunsRechargeAndAddCartridge(float Time)
+        {
+            foreach(var gun in GunManager.ShipGuns)
+            {
+                gun.Recharge(Time);
+                gun.AddCartridge();
+            }
         }
     }
 }

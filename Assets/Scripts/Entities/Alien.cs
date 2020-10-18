@@ -2,22 +2,23 @@
 using System;
 using UnityEngine;
 
-[RequireComponent(typeof(ShipControl))]
 public class Alien : GameEntity
 {
+    [SerializeField] private float _speedMove;
     private Ship player;
-    private ShipControl shipControl;
+    private ShipControl shipControl = new ShipControl();
+
+    public override Entity Type => Entity.Alien;
+
     public override event Action Entity_Deaded;
 
     private void Awake()
     {
-        shipControl = GetComponent<ShipControl>();
         player = FindObjectOfType<Ship>();
     }
 
     private void Start()
     {
-        type = Entity.Alien;
         shipControl.MoveAcceleration = 1;
     }
 
@@ -36,22 +37,30 @@ public class Alien : GameEntity
 
     private void Move()
     {
-        shipControl.Move(Visualization.GetDirection());
+        transform.position = shipControl.Move(
+            transform.position.Parse(),
+            transform.TransformDirection(Visualization.GetDirection() * _speedMove * Time.deltaTime).Parse())
+            .Parse();
     }
     private void Rotate()
     {
-        shipControl.RotateForTarget(player.transform.position,-Visualization.GetRotateVector(),Visualization.is3D);
+        transform.rotation = Quaternion.Euler(
+            shipControl.RotateForTarget(
+                transform.position.Parse(),
+                player.transform.position.Parse(),
+                -Visualization.GetRotateVector().Parse(),
+                Visualization.is3D).Parse());
     }
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
-        collision.GetComponent<GameEntity>()?.Dead();
+        collision.GetComponent<IGameEntity>()?.Dead();
         Destroy(gameObject);
     }
 
     private void OnTriggerEnter(Collider other)
     {
-        other.GetComponent<GameEntity>()?.Dead();
+        other.GetComponent<IGameEntity>()?.Dead();
         Destroy(gameObject);
     }
 

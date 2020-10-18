@@ -1,42 +1,26 @@
 ﻿using GameLibrary.ShotSystem;
-using System.Collections.Generic;
-using UnityEngine;
+using System.Numerics;
 
 namespace GameLibrary
 {
     /// <summary>
     /// Управляет вооружением
     /// </summary>
-    class WeaponManager : MonoBehaviour
+    public class WeaponManager
     {
-        private List<Weapon> shipGuns = new List<Weapon>();
         private Weapon selectGun;
+        public Weapon[] ShipGuns { get; set; }
         /// <summary>
         /// Выстрелить из указанного оружия в указанном направлении
         /// </summary>
         /// <param name="gun"></param>
         /// <param name="direction"></param>
-        public void Shoot(Weapons gun,Vector3 direction)
+        public void Shoot(Weapons gun,Vector3 position,Vector3 direction)
         {
-            if (selectGun?.type != gun) selectGun = FindGun(gun);
-            if (selectGun?.RechargeTime <= 0)
+            if (selectGun?.Type != gun) selectGun = FindGun(gun);
+            if (selectGun?.isRecharged == false)
             {
-                selectGun.Launch(direction);
-            }
-        }
-        private void Awake()
-        {
-            InstallWeapons();
-        }
-        /// <summary>
-        /// Установить оружие
-        /// </summary>
-        private void InstallWeapons()
-        {
-            foreach(Weapon gun in transform.GetComponents<Weapon>())
-            {
-                gun.CountCartridge_Updated += UpdateTextHandler;
-                shipGuns.Add(gun);
+                selectGun.Launch(position,direction);
             }
         }
         /// <summary>
@@ -46,19 +30,11 @@ namespace GameLibrary
         /// <returns></returns>
         private Weapon FindGun(Weapons weapon)
         {
-            foreach(var gun in shipGuns)
+            foreach(var gun in ShipGuns)
             {
-                if (gun.type == weapon) return gun;
+                if (gun.Type == weapon) return gun;
             }
             throw new System.Exception("Данное оружие отсутствует");
-        }
-        /// <summary>
-        /// Обработчик обновления количества снарядов в орудиях
-        /// </summary>
-        /// <param name="count"></param>
-        /// <param name="index"></param>
-        private void UpdateTextHandler(int count,Weapons type)
-        {
         }
     }
 }

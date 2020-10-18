@@ -1,5 +1,6 @@
 ﻿using GameLibrary;
 using GameLibrary.ShotSystem;
+using System.Collections;
 using UnityEngine;
 
 [RequireComponent(typeof(LineRenderer))]
@@ -18,13 +19,7 @@ public class Lazer3D : Cartridge
 
     private void Start()
     {
-        DrawLine(Visualization.GetDirection());
-        Raycast();
-    }
-
-    private void FixedUpdate()
-    {
-        Destroy(gameObject);
+        StartCoroutine(Attack());
     }
 
     private void DrawLine(Vector3 vector)
@@ -40,7 +35,17 @@ public class Lazer3D : Cartridge
         RaycastHit[] hits = Physics.RaycastAll(transform.position, transform.TransformDirection(Vector3.forward * distance));
         foreach (var hit in hits)
         {
-            hit.transform.GetComponent<GameEntity>()?.Dead();
+            hit.transform.GetComponent<IGameEntity>()?.Dead();
         }
     }
+
+    private IEnumerator Attack()
+    {
+        DrawLine(Visualization.GetDirection());
+        Raycast();
+        yield return new WaitForSeconds(0.04f);
+        Destroy(gameObject);
+        yield break;
+    }
+
 }

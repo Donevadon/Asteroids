@@ -1,11 +1,12 @@
-﻿using UnityEngine;
+﻿
+using System.Numerics;
 
 namespace GameLibrary
 {
     /// <summary>
     /// Проиводит игровые сущности
     /// </summary>
-    public abstract class EntityFactory : MonoBehaviour
+    public interface IEntityFactory
     {
         /// <summary>
         /// Инстантировать сущность и вернуть
@@ -14,6 +15,6 @@ namespace GameLibrary
         /// <param name="position"></param>
         /// <param name="quaternion"></param>
         /// <returns></returns>
-        public abstract GameEntity GetEntity(Entity entity, Vector2 position, Quaternion quaternion);
+        IGameEntity GetEntity(Entity entity, Vector3 position, Quaternion quaternion);
     }
 }

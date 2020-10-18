@@ -1,21 +1,31 @@
-﻿using UnityEngine;
+﻿
+using System.Numerics;
 
 namespace GameLibrary.ShotSystem
 {
     public class WeaponComponent : Weapon
     {
-        public override void Launch(Vector3 direction)
+        public WeaponComponent(ILoader loader,Weapons type,float rechargeTime)
+            :base(loader,type,rechargeTime)
         {
-            if(CountCartridge > 0 || CountCartridge < 0)
-            Instantiate(Cartridge, transform.position, transform.rotation * Quaternion.Euler(direction));
-            RechargeTime = timeToRecharge;
-            if (CountCartridge > 0) CountCartridge--;
+            ChargeSpeed = 0;
+            CountCartridge = -1;
+        }
+        public WeaponComponent(ILoader loader,Weapons type, float rechargeTime, float chargeSpeed,int countCartridge)
+            : base(loader,type, rechargeTime)
+        {
+            ChargeSpeed = chargeSpeed;
+            CountCartridge = countCartridge;
         }
 
-        private void Update()
+        public override void Launch(Vector3 position,Vector3 direction)
         {
-            AddCartridge();
-            Recharge();
+            if (CountCartridge > 0 || CountCartridge < 0)
+            {
+                loader.InstantiateCartridge(Cartridge, position, direction);
+                SetRechargeTime(RechargeTime);
+                if (CountCartridge > 0) CountCartridge--;
+            }
         }
     }
 }

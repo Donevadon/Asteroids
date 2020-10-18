@@ -630,7 +630,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 0.5188679, g: 0.12482198, b: 0.12482198, a: 0.39607844}
+  m_Color: {r: 0.5188679, g: 0.12482198, b: 0.12482198, a: 0.7019608}
   m_RaycastTarget: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
@@ -817,9 +817,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1612289104}
-  - component: {fileID: 1612289103}
   - component: {fileID: 1612289105}
-  - component: {fileID: 1612289106}
   - component: {fileID: 1612289107}
   m_Layer: 0
   m_Name: GameManager
@@ -828,18 +826,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &1612289103
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1612289102}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5916d24a0cc849e438d8d72b67977c17, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!4 &1612289104
 Transform:
   m_ObjectHideFlags: 0
@@ -869,18 +855,6 @@ MonoBehaviour:
   frequency: 2
   defeatPanel: {fileID: 1523865201}
   score: {fileID: 818760306}
---- !u!114 &1612289106
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1612289102}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4474eb10cefff47448d53bf37e283282, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!114 &1612289107
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -978,13 +952,13 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1742612941}
-  m_LocalRotation: {x: 0.40821788, y: -0.23456968, z: 0.10938163, w: 0.8754261}
-  m_LocalPosition: {x: 7.94, y: 7.6, z: 10.81}
+  m_LocalRotation: {x: 0.0834998, y: 0.0056841057, z: 0.048846543, w: 0.9952937}
+  m_LocalPosition: {x: 1.39, y: 4.2, z: -21.15}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
   m_RootOrder: 5
-  m_LocalEulerAnglesHint: {x: 50, y: -30, z: 0}
+  m_LocalEulerAnglesHint: {x: 9.535001, y: 1.131, z: 5.714}
 --- !u!1 &2023859565
 GameObject:
   m_ObjectHideFlags: 0
@@ -1067,7 +1041,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 1612289103}
+      - m_Target: {fileID: 1612289105}
         m_MethodName: Restart
         m_Mode: 1
         m_Arguments:

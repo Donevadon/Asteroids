@@ -1,34 +1,31 @@
-﻿using UnityEngine;
+﻿using System.Numerics;
 
 namespace GameLibrary
 {
     /// <summary>
     /// Объект на сцене
     /// </summary>
-    public class ObjectScene : MonoBehaviour
+    public class ObjectScene
     {
         /// <summary>
         /// Границы сцены
         /// </summary>
-        [SerializeField] protected Vector2 _borders = new Vector2(9,5);
+        public Vector2 Borders { get; set; } = new Vector2(9, 5);
         /// <summary>
         /// Отследить касание границы сцены,для переноса объекта
+        /// Возвращает новые координаты если за границей и старые если  
         /// </summary>
-        protected void CheckBorder()
+        public Vector3 CheckBorder(Vector3 position)
         {
-            if (transform.position.x > _borders.x)
-                transform.position = new Vector3(-_borders.x, transform.position.y, transform.position.z);
-            else if(transform.position.x < -_borders.x)
-                transform.position = new Vector3(_borders.x, transform.position.y, transform.position.z);
-            if (transform.position.y > _borders.y)
-                transform.position = new Vector3(transform.position.x, -_borders.y, transform.position.z);
-            else if(transform.position.y < -_borders.y)
-                transform.position = new Vector3(transform.position.x, _borders.y, transform.position.z);
-        }
-
-        protected virtual void FixedUpdate()
-        {
-            CheckBorder();
+            if (position.X > Borders.X)
+                position.X = -Borders.X;
+            else if(position.X < -Borders.X)
+                position.X = Borders.X;
+            if (position.Y > Borders.Y)
+                position.Y = -Borders.Y;
+            else if(position.Y < -Borders.Y)
+                position.Y = Borders.Y;
+            return position;
         }
     }
 }

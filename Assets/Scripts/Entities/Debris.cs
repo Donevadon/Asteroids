@@ -1,11 +1,12 @@
-﻿using System;
+﻿using GameLibrary;
+using System;
 
 public class Debris : Asteroid
 {
     public override event Action Entity_Deaded;
+    public override Entity Type => Entity.Debris;
     private void Start()
     {
-        type = GameLibrary.Entity.Debris;
         movement.Acceleration = 1;
     }
 
