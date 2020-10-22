@@ -8,6 +8,8 @@
         Asteroid,
         Alien,
         Debris,
-        Player
+        Player,
+        Bullet,
+        Lazer
     }
 }

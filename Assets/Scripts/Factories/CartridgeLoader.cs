@@ -1,28 +1,25 @@
 ﻿using GameLibrary;
-using GameLibrary.ShotSystem;
+using GameLibrary.EntityLibrary;
+using GameLibrary.EntityLibrary.WeaponLibrary;
 using UnityEngine;
 
 public class CartridgeLoader : MonoBehaviour,ILoader
 {
     public ICartridge GetCartridge(Weapon gun)
     {
-        string path = $"Prefabs/Cartridge/{(Visualization.is3D ? "3D" : "2D")}/";
-
         switch (gun.Type)
         {
             case Weapons.BulletWearon:
-                path += "Bullet";
-                break;
+                return new Bullet();
             case Weapons.LazerWeapon:
-                path += "Lazer";
-                break;
+                return new Lazer();
+            default:
+                throw new System.Exception("Неверно указан тип");
         }
-        return Resources.Load<Cartridge>(path);
     }
 
     public void InstantiateCartridge(ICartridge cartridge, System.Numerics.Vector3 position, System.Numerics.Vector3 direction)
     {
-        Cartridge cartridgeEntity = (Cartridge)cartridge;
-        Instantiate(cartridgeEntity, position.Parse(),Quaternion.Euler(direction.Parse()));
+        GameSystem.GetInstance().Spawner.SpawnEntity(cartridge.Type,position,direction,null);
     }
 }

@@ -14,17 +14,21 @@ class GameManager : MonoBehaviour
     private void Awake()
     {
         system = GameSystem.GetInstance();
-        system.Factory = new Factory();
     }
 
     private void Start()
     {
-        system.SpawnEntity(
+        system.Spawner.SpawnEntity(
             Entity.Player,
             Vector3.zero.Parse(),
-            Quaternion.Euler(Visualization.GetRandomEuler()).Parse(),
-            Defeat);
+            Visualization.GetRandomEuler().Parse(),
+            (x) => Defeat());
         StartCoroutine(SpawnEnemy());
+    }
+
+    private void OnApplicationQuit()
+    {
+        system.InvokeCloseProgram();
     }
 
     private void Defeat()
@@ -40,22 +44,16 @@ class GameManager : MonoBehaviour
 
     public void ReloadEntity()
     {
-        GameEntity[] entities = FindObjectsOfType<GameEntity>();
-        foreach (var entity in entities)
+        system.ReloadEntity((entity) =>
         {
-            Destroy(entity.gameObject);
-            IGameEntity gameEntity = system.Factory.GetEntity(
-                entity.Type, 
-                entity.transform.position.Parse(), 
-                Quaternion.Euler(Visualization.GetEuler(entity.transform.rotation.eulerAngles)).Parse());
-            if (gameEntity.Type == Entity.Player) gameEntity.Entity_Deaded += Defeat;
-            else gameEntity.Entity_Deaded += AddScore;
-        }
-        Cartridge[] cartridges = FindObjectsOfType<Cartridge>();
-        foreach(var cartridge in cartridges)
-        {
-            Destroy(cartridge.gameObject);
-        }
+            IEntity gameEntity = system.Spawner.SpawnEntity(
+                entity.Type,
+                entity.Position,
+                Visualization.GetEuler(entity.Rotation.Parse()).Parse(),
+                null);
+            if (gameEntity.Type == Entity.Player) gameEntity.Entity_Deaded += (x) => Defeat();
+            else gameEntity.Entity_Deaded += (x) => AddScore();
+        });
     }
 
     private IEnumerator SpawnEnemy()
@@ -63,26 +61,28 @@ class GameManager : MonoBehaviour
         int count = 0;
         while (true)
         {
-            system.SpawnEntity(
+            system.Spawner.SpawnEntity(
                 Entity.Asteroid,
                 new Vector3(9,5,0).Parse(),
-                Quaternion.Euler(Visualization.GetRandomEuler()).Parse(),
-                AddScore);
+                Visualization.GetRandomEuler().Parse(),
+                (x)=> AddScore());
             if (++count > 10)
             {
                 count = 0;
-                system.SpawnEntity(
+                system.Spawner.SpawnEntity(
                     Entity.Alien, 
                     new Vector3(8.8f, 4.8f, 0).Parse(), 
-                    Quaternion.Euler(Visualization.GetRandomEuler()).Parse(), 
-                    AddScore);
+                    Visualization.GetRandomEuler().Parse(), 
+                    (x) => AddScore());
             }
             yield return new WaitForSeconds(frequency);
         }
     }
-
+    /// <summary>
+    /// Перезапуск уровня
+    /// </summary>
     public void Restart()
     {
-        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+        system.Restart(() => SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex));
     }
 }

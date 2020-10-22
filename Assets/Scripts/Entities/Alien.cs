@@ -1,4 +1,5 @@
 ﻿using GameLibrary;
+using GameLibrary.EntityLibrary;
 using System;
 using UnityEngine;
 
@@ -6,67 +7,103 @@ public class Alien : GameEntity
 {
     [SerializeField] private float _speedMove;
     private Ship player;
-    private ShipControl shipControl = new ShipControl();
+    private ShipControl ShipControl { get; set; }
 
     public override Entity Type => Entity.Alien;
 
-    public override event Action Entity_Deaded;
+    public override System.Numerics.Vector3 Position 
+    {
+        get => ShipControl.Movement.Position;
+        set
+        {
+            ShipControl.Movement.SetPosition(value);
+            transform.position = ShipControl.Movement.Position.Parse();
+        }
+    }
+    public override System.Numerics.Vector3 Rotation 
+    {
+        get => ShipControl.Rotation.EulerAngles;
+        set
+        {
+            ShipControl.Rotation.SetRotation(value);
+            transform.rotation = Quaternion.Euler(ShipControl.Rotation.EulerAngles.Parse());
+            ShipControl.Movement.Direction = transform.TransformDirection(Visualization.GetDirection()).Parse();
+        }
+    }
+
+    private event Action Ship_Move;
+    private event Action<System.Numerics.Vector3, bool> Ship_Rotate;
+    public override event Action<IEntity> Entity_Deaded;
 
     private void Awake()
     {
-        player = FindObjectOfType<Ship>();
+        InitialShip();
     }
 
     private void Start()
     {
-        shipControl.MoveAcceleration = 1;
+        ShipControl.Movement.Acceleration = 1;
+        player = FindObjectOfType<Ship>();
     }
 
     private void FixedUpdate()
     {
-        Move();
-        try
-        {
-            Rotate();
-        }
-        catch
-        {
-
-        }
+        transform.position = ShipControl.Movement.Position.Parse();
+        transform.rotation = Quaternion.Euler(ShipControl.Rotation.EulerAngles.Parse());
+        ShipControl.Movement.Direction = transform.TransformDirection(Visualization.GetDirection()).Parse();
     }
 
     private void Move()
     {
-        transform.position = shipControl.Move(
-            transform.position.Parse(),
-            transform.TransformDirection(Visualization.GetDirection() * _speedMove * Time.deltaTime).Parse())
-            .Parse();
+        Ship_Move();
     }
+
+    private void InitialShip()
+    {
+        ShipControl = new ShipControl(
+            transform.TransformDirection(Visualization.GetDirection()).Parse(),
+            ref Ship_Move,
+            Visualization.GetRotateVector().Parse(),
+            ref Ship_Rotate);
+        InitialMovement();
+    }
+
+    private void InitialMovement()
+    {
+        ShipControl.Movement.Speed = _speedMove;
+    }
+
     private void Rotate()
     {
-        transform.rotation = Quaternion.Euler(
-            shipControl.RotateForTarget(
-                transform.position.Parse(),
-                player.transform.position.Parse(),
-                -Visualization.GetRotateVector().Parse(),
-                Visualization.is3D).Parse());
-    }
-
-    private void OnTriggerEnter2D(Collider2D collision)
-    {
-        collision.GetComponent<IGameEntity>()?.Dead();
-        Destroy(gameObject);
-    }
-
-    private void OnTriggerEnter(Collider other)
-    {
-        other.GetComponent<IGameEntity>()?.Dead();
-        Destroy(gameObject);
+        Ship_Rotate(player.Position,Visualization.is3D);
     }
 
     public override void Dead()
     {
-        Entity_Deaded();
+        Entity_Deaded(this);
         Destroy(gameObject);
+    }
+
+    public override void UpdateData()
+    {
+        Move();
+        Rotate();
+    }
+
+    public override void Destroy()
+    {
+        Destroy(gameObject);
+    }
+    private void OnTriggerEnter2D(Collider2D collision)
+    {
+        collision?.GetComponent<IGameEntity>()?.Dead();
+        Entity_Deaded(this);
+        Destroy();
+    }
+    private void OnTriggerEnter(Collider other)
+    {
+        other?.GetComponent<IGameEntity>()?.Dead();
+        Entity_Deaded(this);
+        Destroy();
     }
 }
