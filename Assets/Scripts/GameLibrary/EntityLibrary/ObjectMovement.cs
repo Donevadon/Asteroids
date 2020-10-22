@@ -32,6 +32,7 @@ namespace GameLibrary.EntityLibrary
         }
 
         public event Action<Vector3> Position_Updated;
+        public event Action<Vector3> Direction_Updated;
 
         public ObjectMovement(Vector3 direction,ref Action Object_Move)
         {
@@ -58,6 +59,7 @@ namespace GameLibrary.EntityLibrary
 
         private void InvokeUpdate() 
         {
+            Direction_Updated?.Invoke(Direction);
             Position_Updated?.Invoke(Position);
         }
     }

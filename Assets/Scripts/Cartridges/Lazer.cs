@@ -47,7 +47,7 @@ public class Lazer : Cartridge
 
     private void Start()
     {
-        StartCoroutine(Attack());
+        Attack();
     }
 
     private void DrawLine(Vector3 vector)
@@ -57,41 +57,33 @@ public class Lazer : Cartridge
         lineRenderer.SetPositions(linePoints);
     }
 
-    private void Raycast2D()
-    {
-        RaycastHit2D[] hits2D = Physics2D.RaycastAll(transform.position, transform.TransformDirection(Vector3.up * distance));
-        foreach (var hit in hits2D)
-        {
-            hit.transform.GetComponent<IGameEntity>()?.Dead();
-        }
-    }
-
-    private IEnumerator Attack()
+    private void Attack()
     {
         DrawLine(Visualization.GetDirection());
-        if (is3D) Raycast3D();
-        else Raycast2D();
-        yield return new WaitForSeconds(0.04f);
-        Entity_Deaded(this);
-        Destroy(gameObject);
-        yield break;
+        GameSystem.Raycast(this,Position,Movement.Direction,15,0.1f);
     }
-    private void Raycast3D()
-    {
-        RaycastHit[] hits = Physics.RaycastAll(transform.position, transform.TransformDirection(Vector3.forward * distance));
-        foreach (var hit in hits)
-        {
-            hit.transform.GetComponent<IGameEntity>()?.Dead();
-        }
-    }
-
     public override void UpdateData()
     {
-        
+        Timer(0.5f);
+    }
+
+    protected override void Timer(float time)
+    {
+        if (deadTime >= 1)
+        {
+            Destroy();
+        }
+        else deadTime += time;
     }
 
     public override void Destroy()
     {
-        Destroy(gameObject);
+        Entity_Deaded(this);
+        GameSystem.Context.Send((x) =>
+        {
+            if (gameObject is null) return;
+            Destroy(gameObject);
+        }, null);
+
     }
 }

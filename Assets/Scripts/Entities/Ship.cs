@@ -36,6 +36,8 @@ public class Ship : GameEntity
         }
     }
 
+    public override float RadiusCollider => 0.215f;
+
     public override event Action<IEntity> Entity_Deaded;
 
     private void Awake()
@@ -112,7 +114,7 @@ public class Ship : GameEntity
     public override void Dead()
     {
         Entity_Deaded(this);
-        Destroy(gameObject);
+        Destroy();
     }
     public override void UpdateData()
     {
@@ -123,6 +125,10 @@ public class Ship : GameEntity
 
     public override void Destroy()
     {
-        Destroy(gameObject);
+        GameSystem.Context.Send((x) =>
+        {
+            if (gameObject is null) return;
+            Destroy(gameObject);
+        }, null);
     }
 }

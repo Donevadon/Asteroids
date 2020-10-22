@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Runtime.InteropServices;
+using System.Diagnostics;
 using System.Threading;
 
 namespace GameLibrary.Engine
@@ -8,14 +8,17 @@ namespace GameLibrary.Engine
     class DataUpdater : IDataUpdater
     {
         private readonly int CycleInterval = 20;
-        private static List<IEntity> GameEntities;
+        private static List<IEntity> gameEntities;
         private static DataUpdater dataUpdater;
-        private Thread thread;
+        private ICollider2D Collider = new Collider();
+        private Thread UpdateThread;
+        private Thread CollisionThread;
 
         private DataUpdater(ref Action program_Closed)
         {
-            thread = new Thread(Update);
-            GameEntities = new List<IEntity>();
+            UpdateThread = new Thread(Update);
+            CollisionThread = new Thread(Collision);
+            gameEntities = new List<IEntity>();
             program_Closed += Stop;
             Start();
         }
@@ -25,59 +28,90 @@ namespace GameLibrary.Engine
             if (dataUpdater is null) dataUpdater = new DataUpdater(ref program_Closed);
             return dataUpdater;
         }
+        public static DataUpdater GetInitialInstance()
+        {
+            return dataUpdater;
+        }
 
         public void Add(IEntity entity)
         {
-            GameEntities.Add(entity);
+            gameEntities.Add(entity);
         }
 
         public void Remove(IEntity entity)
         {
-            GameEntities.Remove(entity);
+            gameEntities.Remove(entity);
         }
 
         private void Start()
         {
-            thread.Start();
+            UpdateThread.Start();
+            CollisionThread.Start();
         }
 
         private void Stop()
         {
-            thread.Abort();
+            UpdateThread.Abort();
+            CollisionThread.Abort();
         }
 
         private void Update()
         {
             while (true)
             {
-                try
-                {
-                    for (int i = 0; i < GameEntities.Count; i++)
+                    for (int i = 0; i < gameEntities.Count; i++)
                     {
-                        GameEntities[i].UpdateData();
+                        try
+                        {
+                            gameEntities[i].UpdateData();
+                        }
+                        catch 
+                        {
+                            
+                        }
                     }
-                }
-                catch (Exception ex) 
-                {
-                    
-                }
                 Thread.Sleep(CycleInterval);
             }
         }
 
+        private void Collision()
+        {
+            while (true)
+            {
+                for (int i = 0; i < gameEntities.Count; i++)
+                {
+                    try
+                    {
+                        Collider.CheckCollider(gameEntities[i], GetAllExcept(gameEntities[i]));
+                    }
+                    catch 
+                    {
+                        
+                    }
+                }
+                Thread.Sleep(CycleInterval);
+            }
+
+        }
+
         public void RemoveAll()
         {
-            GameEntities.RemoveAll((x) => true);
+            gameEntities.RemoveAll((x) => true);
+        }
+
+        public IEntity[] GetAllExcept(IEntity entity)
+        {
+            return gameEntities.FindAll((x) => x != entity).ToArray();
         }
 
         public void RemoveAt(Entity entityType)
         {
-            GameEntities.RemoveAll((x) => x.Type == entityType);
+            gameEntities.RemoveAll((x) => x.Type == entityType);
         }
 
         public IEntity[] FindEntityAt<T>() where T : IEntity
         {
-            return GameEntities.FindAll((x) => x is T).ToArray();
+            return gameEntities.FindAll((x) => x is T).ToArray();
         }
     }
 }

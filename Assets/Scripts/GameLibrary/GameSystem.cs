@@ -1,5 +1,6 @@
 ﻿using GameLibrary.Engine;
 using System;
+using System.Numerics;
 using System.Threading;
 
 namespace GameLibrary
@@ -22,7 +23,19 @@ namespace GameLibrary
             DataUpdateSystem = DataUpdater.GetInstance(ref Program_Closed);
             Spawner = new CreatorEntity(DataUpdateSystem);
         }
+        /// <summary>
+        /// Выпустить луч и уничтожить все пересечённые вражеские объекты
+        /// </summary>
+        /// <param name="callingEntity"></param>
+        /// <param name="position"></param>
+        /// <param name="direction"></param>
+        /// <param name="distance"></param>
+        /// <param name="size"></param>
 
+        public static void Raycast(IEntity callingEntity, Vector3 position, Vector3 direction, float distance, float size)
+        {
+            Ray.Raycast(callingEntity,position,direction,distance,size);
+        }
         public static GameSystem GetInstance()
         {
             if (gameSystem is null) gameSystem = new GameSystem();
@@ -76,6 +89,7 @@ namespace GameLibrary
         public void Restart(Action restart)
         {
             DataUpdateSystem.RemoveAll();
+            ResetScore();
             restart();
         }
 

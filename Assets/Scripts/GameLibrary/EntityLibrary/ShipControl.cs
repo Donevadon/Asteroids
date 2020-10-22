@@ -40,7 +40,8 @@ namespace GameLibrary.EntityLibrary
                 ref Object_Move);
             Rotation = new ObjectRotation(rotateDirection, 
                 ref Object_Rotate,
-                (x) => Movement.Position_Updated += x);
+                (x) => Movement.Position_Updated += x,
+                (x) => Movement.Direction_Updated += x);
         }
 
         /// <summary>

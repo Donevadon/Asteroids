@@ -7,5 +7,6 @@
         void RemoveAll();
         void RemoveAt(Entity entityType);
         IEntity[] FindEntityAt<T>() where T : IEntity;
+        IEntity[] GetAllExcept(IEntity entity);
     }
 }

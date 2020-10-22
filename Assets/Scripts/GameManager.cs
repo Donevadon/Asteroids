@@ -9,7 +9,7 @@ class GameManager : MonoBehaviour
     [SerializeField]private float frequency;
     private GameSystem system;
     public GameObject defeatPanel;
-    public Text score;
+    public Text _score;
 
     private void Awake()
     {
@@ -33,13 +33,19 @@ class GameManager : MonoBehaviour
 
     private void Defeat()
     {
-        defeatPanel.SetActive(true);
+        GameSystem.Context.Send((x) => defeatPanel.SetActive(true),null);
     }
 
     private void AddScore()
     {
         system.AddScore(1);
-        score.text = "Score : " + system.Score.ToString();
+        GameSystem.Context.Send(OutputScore, system.Score);
+    }
+
+    private void OutputScore(object o)
+    {
+        int score = (int)o;
+        _score.text = "Score : "  + score.ToString();
     }
 
     public void ReloadEntity()

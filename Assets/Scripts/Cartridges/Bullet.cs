@@ -11,8 +11,8 @@ public class Bullet : Cartridge
 
     private event Action Object_Move;
     public override event Action<IEntity> Entity_Deaded;
-    private float deadTime;
 
+    public override float RadiusCollider => 0.074f;
     public override Sprite Image { get; }
 
     public override Entity Type => Entity.Bullet;
@@ -46,19 +46,14 @@ public class Bullet : Cartridge
         Movement.Speed = _speed;
         Movement.Acceleration = 1;
     }
-    private void Timer(float time)
+    protected override void Timer(float time)
     {
         if (deadTime >= 1)
         {
             Entity_Deaded(this);
-            GameSystem.Context.Send(InvokeDestroy,null);
+            Destroy();
         }
         else deadTime += time;
-    }
-
-    private void InvokeDestroy(object o)
-    {
-        Destroy(gameObject);
     }
 
     public override void UpdateData()
@@ -69,20 +64,22 @@ public class Bullet : Cartridge
 
     public override void Destroy()
     {
-        Destroy(gameObject);
+        GameSystem.Context.Send((x) =>
+        {
+            if (gameObject is null) return;
+            Destroy(gameObject);
+        }, null);
     }
 
-    private void OnTriggerEnter2D(Collider2D collision)
+    public override void OnCollision(IEntity foundEntity)
     {
-        collision?.GetComponent<IGameEntity>()?.Dead();
-        Entity_Deaded(this);
-        Destroy();
+        switch (foundEntity)
+        {
+            case IGameEntity gameEntity when gameEntity.Type != Entity.Player:
+                gameEntity.Dead();
+                Entity_Deaded(this);
+                Destroy();
+                break;
+        }
     }
-    private void OnTriggerEnter(Collider other)
-    {
-        other?.GetComponent<IGameEntity>()?.Dead();
-        Entity_Deaded(this);
-        Destroy();
-    }
-
 }

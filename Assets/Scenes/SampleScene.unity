@@ -630,7 +630,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 0.5188679, g: 0.12482198, b: 0.12482198, a: 0.7019608}
+  m_Color: {r: 0.5188679, g: 0.12482198, b: 0.12482198, a: 1}
   m_RaycastTarget: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
@@ -854,7 +854,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   frequency: 2
   defeatPanel: {fileID: 1523865201}
-  score: {fileID: 818760306}
+  _score: {fileID: 818760306}
 --- !u!114 &1612289107
 MonoBehaviour:
   m_ObjectHideFlags: 0

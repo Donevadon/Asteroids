@@ -31,6 +31,8 @@ public class Alien : GameEntity
         }
     }
 
+    public override float RadiusCollider => 0.15f;
+
     private event Action Ship_Move;
     private event Action<System.Numerics.Vector3, bool> Ship_Rotate;
     public override event Action<IEntity> Entity_Deaded;
@@ -81,7 +83,7 @@ public class Alien : GameEntity
     public override void Dead()
     {
         Entity_Deaded(this);
-        Destroy(gameObject);
+        Destroy();
     }
 
     public override void UpdateData()
@@ -92,18 +94,21 @@ public class Alien : GameEntity
 
     public override void Destroy()
     {
-        Destroy(gameObject);
+        GameSystem.Context.Send((x) =>
+            {
+                if (gameObject is null) return;
+                Destroy(gameObject);
+            },null);
     }
-    private void OnTriggerEnter2D(Collider2D collision)
+
+    public override void OnCollision(IEntity foundEntity)
     {
-        collision?.GetComponent<IGameEntity>()?.Dead();
-        Entity_Deaded(this);
-        Destroy();
-    }
-    private void OnTriggerEnter(Collider other)
-    {
-        other?.GetComponent<IGameEntity>()?.Dead();
-        Entity_Deaded(this);
-        Destroy();
+        switch (foundEntity)
+        {
+            case IGameEntity gameEntity when gameEntity.Type == Entity.Player:
+                gameEntity.Dead();
+                Dead();
+                break;
+        }
     }
 }

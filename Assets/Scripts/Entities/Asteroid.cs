@@ -25,6 +25,8 @@ public class Asteroid : GameEntity
         } 
     }
 
+    public override float RadiusCollider => 0.35f;
+
     public event Action Object_Move;
     public override event Action<IEntity> Entity_Deaded;
     private void Awake()
@@ -47,15 +49,15 @@ public class Asteroid : GameEntity
         IEntity debris;
         for (int i = 0; i < UnityEngine.Random.Range(2, 5); i++)
         {
-            debris = GameSystem.GetInstance().Spawner.SpawnEntity(Entity.Debris, transform.position.Parse(), Visualization.GetRandomEuler().Parse(),null);
+            debris = GameSystem.GetInstance().Spawner.SpawnEntity(Entity.Debris, Position, Visualization.GetRandomEuler().Parse(),null);
             debris.Entity_Deaded += Entity_Deaded;
         }
     }
     public override void Dead()
     {
-        CreateDebris();
+        GameSystem.Context.Send((x) => CreateDebris(),null);
         Entity_Deaded(this);
-        Destroy(gameObject);
+        Destroy();
     }
     public override void UpdateData()
     {
@@ -64,16 +66,22 @@ public class Asteroid : GameEntity
 
     public override void Destroy()
     {
-        Destroy(gameObject);
-    }
-    private void OnTriggerEnter2D(Collider2D collision)
-    {
-        collision?.GetComponent<IGameEntity>()?.Dead();
-    }
-    private void OnTriggerEnter(Collider other)
-    {
-        other?.GetComponent<IGameEntity>()?.Dead();
+        GameSystem.Context.Send((x) =>
+        {
+            if (gameObject is null) return;
+            Destroy(gameObject);
+        }, null);
+
     }
 
+    public override void OnCollision(IEntity foundEntity)
+    {
+        switch (foundEntity)
+        {
+            case IGameEntity gameEntity when gameEntity.Type == Entity.Player:
+                gameEntity.Dead();
+                break;
+        }
+    }
 }
 

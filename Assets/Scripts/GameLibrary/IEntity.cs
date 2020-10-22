@@ -5,11 +5,13 @@ namespace GameLibrary
 {
     public interface IEntity
     {
+        float RadiusCollider { get; }
         Vector3 Position { get; set; }
         Vector3 Rotation { get; set; }
         Entity Type { get; }
         event Action<IEntity> Entity_Deaded;
         void UpdateData();
         void Destroy();
+        void OnCollision(IEntity foundEntity);
     }
 }
