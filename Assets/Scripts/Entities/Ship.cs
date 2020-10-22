@@ -59,7 +59,7 @@ public class Ship : GameEntity
                     Weapons.LazerWeapon,
                     2,
                     0.2f,
-                    2)
+                    0)
             };
     }
 

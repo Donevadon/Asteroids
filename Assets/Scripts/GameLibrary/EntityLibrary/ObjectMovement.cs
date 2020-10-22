@@ -49,17 +49,19 @@ namespace GameLibrary.EntityLibrary
         {
             Position = position;
             InvokeUpdate();
+            
         }
         private void Move()
         {
             Position = CheckBorder(Position);
             Position += (Direction * _acceleration * (Speed * 0.02f));
             InvokeUpdate();
+            Direction_Updated?.Invoke(Direction);
         }
 
         private void InvokeUpdate() 
         {
-            Direction_Updated?.Invoke(Direction);
+            
             Position_Updated?.Invoke(Position);
         }
     }
